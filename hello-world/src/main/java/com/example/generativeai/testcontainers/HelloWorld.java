@@ -2,9 +2,11 @@ package com.example.generativeai.testcontainers;
 
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.ollama.OllamaChatModel;
+import lombok.extern.slf4j.Slf4j;
 import org.testcontainers.ollama.OllamaContainer;
 import org.testcontainers.utility.DockerImageName;
 
+@Slf4j
 public class HelloWorld {
 
 	public static void main(String[] args) {
@@ -16,7 +18,7 @@ public class HelloWorld {
 			.modelName("llama3.2:1b")
 			.build();
 		String answer = model.generate("Provide 3 short bullet points explaining why Java is awesome");
-		System.out.println("Response from LLM (🤖)-> " + answer);
+		log.info("Response from LLM (\uD83E\uDD16)-> {}", answer);
 	}
 
 }

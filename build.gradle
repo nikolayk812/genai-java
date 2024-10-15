@@ -8,13 +8,14 @@ buildscript {
 }
 
 plugins {
-    id 'java'
+    id "io.freefair.lombok" version "8.10.2"
 }
 
 subprojects {
     apply {
         plugin 'java'
         plugin 'io.spring.javaformat'
+        plugin 'io.freefair.lombok'
     }
 
     repositories {
@@ -29,5 +30,7 @@ subprojects {
     dependencies {
         implementation platform('org.testcontainers:testcontainers-bom:1.20.2')
         implementation platform('dev.langchain4j:langchain4j-bom:0.35.0')
+        compileOnly 'org.projectlombok:lombok:1.18.34'
+        implementation 'ch.qos.logback:logback-classic:1.5.8'
     }
 }

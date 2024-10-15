@@ -1,3 +1,4 @@
 rootProject.name = 'generative-ai-with-testcontainers'
 
 include 'hello-world'
+include 'chat-streaming'
