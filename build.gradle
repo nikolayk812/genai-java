@@ -1,0 +1,33 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("io.spring.javaformat:spring-javaformat-gradle-plugin:0.0.43")
+    }
+}
+
+plugins {
+    id 'java'
+}
+
+subprojects {
+    apply {
+        plugin 'java'
+        plugin 'io.spring.javaformat'
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+    java {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+
+    dependencies {
+        implementation platform('org.testcontainers:testcontainers-bom:1.20.2')
+        implementation platform('dev.langchain4j:langchain4j-bom:0.35.0')
+    }
+}
