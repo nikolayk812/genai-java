@@ -1,0 +1,7 @@
+group = 'com.example.generativeai.testcontainers'
+version = '0.0.1-SNAPSHOT'
+
+dependencies {
+    implementation 'org.testcontainers:ollama'
+    implementation 'dev.langchain4j:langchain4j-ollama'
+}
