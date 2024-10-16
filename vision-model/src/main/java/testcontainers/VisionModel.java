@@ -22,20 +22,19 @@ import java.util.Base64;
 public class VisionModel {
 
 	@SneakyThrows
-    public static void main(String[] args) {
-		OllamaContainer ollama = new OllamaContainer(DockerImageName.parse("ilopezluna/moondream:0.3.13-1.8b").asCompatibleSubstituteFor("ollama/ollama:0.3.13"));
+	public static void main(String[] args) {
+		OllamaContainer ollama = new OllamaContainer(DockerImageName.parse("ilopezluna/moondream:0.3.13-1.8b")
+			.asCompatibleSubstituteFor("ollama/ollama:0.3.13"));
 		ollama.start();
-        UserMessage userMessage = UserMessage.from(
-				TextContent.from("What do you see?"),
-				ImageContent.from(getImageInBase64("/computer.jpeg"), "image/jpeg")
-		);
+		UserMessage userMessage = UserMessage.from(TextContent.from("What do you see?"),
+				ImageContent.from(getImageInBase64("/computer.jpeg"), "image/jpeg"));
 
 		ChatLanguageModel model = OllamaChatModel.builder()
-				.baseUrl(ollama.getEndpoint())
-				.modelName("moondream:1.8b")
-				.build();
+			.baseUrl(ollama.getEndpoint())
+			.modelName("moondream:1.8b")
+			.build();
 		Response<AiMessage> generate = model.generate(userMessage);
-        log.info("Response from LLM (\uD83E\uDD16)-> {}", generate.content().text());
+		log.info("Response from LLM (\uD83E\uDD16)-> {}", generate.content().text());
 	}
 
 	private static String getImageInBase64(String name) throws IOException {
@@ -43,4 +42,5 @@ public class VisionModel {
 		byte[] fileContent = FileUtils.readFileToByteArray(new File(resourceUrl.getFile()));
 		return Base64.getEncoder().encodeToString(fileContent);
 	}
+
 }

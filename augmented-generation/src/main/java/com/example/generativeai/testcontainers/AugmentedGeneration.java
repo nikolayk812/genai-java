@@ -20,19 +20,20 @@ public class AugmentedGeneration {
 
 		var augmentedMessage = """
 				%s
-				
+
 				Use the following bullet points to answer the question:
 				- The JUG meeting is about how to leverage Testcontainers for building Generative AI applications.
 				- The meeting will explore how Testcontainers can be used to create a seamless development environment for AI projects.
-				
+
 				Do not indicate that you have been given any additional information.
-				""".formatted(orginalMessage);
+				"""
+			.formatted(orginalMessage);
 
 		ChatLanguageModel model = OllamaChatModel.builder()
 			.baseUrl(ollamaContainer.getEndpoint())
 			.modelName("llama3.2:1b")
-				.temperature(0.0001)
-				.topK(1)
+			.temperature(0.0001)
+			.topK(1)
 			.build();
 
 		String answer1 = model.generate(orginalMessage);

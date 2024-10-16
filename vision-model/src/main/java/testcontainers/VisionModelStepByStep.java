@@ -24,28 +24,28 @@ import dev.langchain4j.data.message.TextContent;
 public class VisionModelStepByStep {
 
 	@SneakyThrows
-    public static void main(String[] args) {
+	public static void main(String[] args) {
 		String imageName = "tc-ollama-moondream";
-		OllamaContainer ollama = new OllamaContainer(DockerImageName.parse(imageName).asCompatibleSubstituteFor("ollama/ollama:0.3.13"));
+		OllamaContainer ollama = new OllamaContainer(
+				DockerImageName.parse(imageName).asCompatibleSubstituteFor("ollama/ollama:0.3.13"));
 		try {
 			ollama.start();
-		} catch (ContainerFetchException ex) {
+		}
+		catch (ContainerFetchException ex) {
 			// If image doesn't exist, create it. Subsequent runs will reuse the image.
 			createImage(imageName);
 			ollama.start();
 		}
 
-        UserMessage userMessage = UserMessage.from(
-				TextContent.from("What do you see?"),
-				ImageContent.from(getImageInBase64("/computer.jpeg"), "image/jpeg")
-		);
+		UserMessage userMessage = UserMessage.from(TextContent.from("What do you see?"),
+				ImageContent.from(getImageInBase64("/computer.jpeg"), "image/jpeg"));
 
 		ChatLanguageModel model = OllamaChatModel.builder()
-				.baseUrl(ollama.getEndpoint())
-				.modelName("moondream:latest")
-				.build();
+			.baseUrl(ollama.getEndpoint())
+			.modelName("moondream:latest")
+			.build();
 		Response<AiMessage> generate = model.generate(userMessage);
-        log.info("Response from LLM (\uD83E\uDD16)-> {}", generate.content().text());
+		log.info("Response from LLM (\uD83E\uDD16)-> {}", generate.content().text());
 	}
 
 	public static void createImage(String imageName) throws IOException, InterruptedException {
@@ -60,4 +60,5 @@ public class VisionModelStepByStep {
 		byte[] fileContent = FileUtils.readFileToByteArray(new File(resourceUrl.getFile()));
 		return Base64.getEncoder().encodeToString(fileContent);
 	}
+
 }
