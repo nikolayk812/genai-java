@@ -1,7 +1,8 @@
 rootProject.name = 'generative-ai-with-testcontainers'
 
-include 'hello-world'
-include 'streaming'
-include 'vision-model'
-include 'chat'
-include 'augmented-generation'
+include '1-hello-world'
+include '2-streaming'
+include '3-chat'
+include '4-vision-model'
+include '5-augmented-generation'
+include '6-embeddings'

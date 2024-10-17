@@ -1,4 +1,4 @@
-package testcontainers;
+package com.example.generativeai.testcontainers;
 
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ImageContent;
