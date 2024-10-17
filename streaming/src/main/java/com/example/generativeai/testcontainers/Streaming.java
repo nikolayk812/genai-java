@@ -10,7 +10,7 @@ import org.testcontainers.ollama.OllamaContainer;
 import org.testcontainers.utility.DockerImageName;
 
 @Slf4j
-public class ChatStreaming {
+public class Streaming {
 
 	public static void main(String[] args) {
 		OllamaContainer ollamaContainer = new OllamaContainer(

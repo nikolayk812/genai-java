@@ -1,6 +1,7 @@
 rootProject.name = 'generative-ai-with-testcontainers'
 
 include 'hello-world'
-include 'chat-streaming'
+include 'streaming'
 include 'vision-model'
+include 'chat'
 include 'augmented-generation'
