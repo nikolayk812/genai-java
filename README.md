@@ -10,6 +10,7 @@ This project demonstrates how to use Testcontainers to create a seamless develop
 4. `4-vision-model`: Contains an example of using a vision model to generate text from images.
 5. `5-augmented-generation`: Contains an example of augmenting the prompt with additional information to generate more accurate text.
 6. `6-embeddings`: Contains an example of generating embeddings from text and calculating similarity between them.
+7. `7-rag`: Contains an example of applying RAG (Retrieval-Augmented Generation) to generate better responses.
 
 ## Prerequisites
 
