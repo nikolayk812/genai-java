@@ -11,7 +11,8 @@ public class AugmentedGeneration {
 
 	public static void main(String[] args) {
 		OllamaContainer ollamaContainer = new OllamaContainer(
-				DockerImageName.parse("ilopezluna/llama3.2:0.3.13-1b").asCompatibleSubstituteFor("ollama/ollama"));
+				DockerImageName.parse("ilopezluna/llama3.2:0.3.13-1b").asCompatibleSubstituteFor("ollama/ollama"))
+			.withReuse(true);
 		ollamaContainer.start();
 
 		var orginalMessage = """

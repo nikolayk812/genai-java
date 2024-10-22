@@ -67,7 +67,8 @@ public class Rag {
 
 	private static ChatLanguageModel buildChatModel() {
 		OllamaContainer ollamaContainer = new OllamaContainer(
-				DockerImageName.parse("ilopezluna/llama3.2:0.3.13-1b").asCompatibleSubstituteFor("ollama/ollama"));
+				DockerImageName.parse("ilopezluna/llama3.2:0.3.13-1b").asCompatibleSubstituteFor("ollama/ollama"))
+			.withReuse(true);
 		ollamaContainer.start();
 		return OllamaChatModel.builder()
 			.baseUrl(ollamaContainer.getEndpoint())
