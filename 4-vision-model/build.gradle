@@ -2,7 +2,6 @@ group = 'com.example.generativeai.testcontainers'
 version = '0.0.1-SNAPSHOT'
 
 apply plugin: 'application'
-mainClassName = 'com.example.generativeai.testcontainers.VisionModel'
 
 dependencies {
     implementation 'org.testcontainers:ollama'

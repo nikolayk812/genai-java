@@ -28,8 +28,8 @@ subprojects {
     }
 
     dependencies {
-        implementation platform('org.testcontainers:testcontainers-bom:1.20.2')
-        implementation platform('dev.langchain4j:langchain4j-bom:0.36.2')
+        implementation platform('org.testcontainers:testcontainers-bom:1.20.4')
+        implementation platform('dev.langchain4j:langchain4j-bom:1.0.0-alpha1')
         compileOnly 'org.projectlombok:lombok:1.18.34'
         implementation 'ch.qos.logback:logback-classic:1.5.8'
         testImplementation 'org.junit.jupiter:junit-jupiter:5.11.3'
