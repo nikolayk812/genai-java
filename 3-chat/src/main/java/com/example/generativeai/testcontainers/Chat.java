@@ -4,73 +4,79 @@ import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.StreamingResponseHandler;
-import dev.langchain4j.model.chat.StreamingChatLanguageModel;
 import dev.langchain4j.model.ollama.OllamaStreamingChatModel;
 import dev.langchain4j.model.output.Response;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.testcontainers.ollama.OllamaContainer;
-import org.testcontainers.utility.DockerImageName;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 import java.util.Scanner;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 public class Chat {
 
-	public static void main(String[] args) {
-		OllamaContainer ollamaContainer = new OllamaContainer(
-				DockerImageName.parse("ilopezluna/llama3.2:0.3.13-1b").asCompatibleSubstituteFor("ollama/ollama"))
-			.withReuse(true);
-		ollamaContainer.start();
+    private static final String MODEL_NAME = "llama3.2:1b-instruct-q5_1";
 
-		StreamingChatLanguageModel model = OllamaStreamingChatModel.builder()
-			.baseUrl(ollamaContainer.getEndpoint())
-			.modelName("llama3.2:1b")
-			.build();
+    @SneakyThrows
+    public static void main(String[] args) {
+        var container = new OllamaContainer("ollama/ollama:0.5.7").withReuse(true);
 
-		List<ChatMessage> conversation = new ArrayList<>();
+        container.start();
+        container.execInContainer("ollama", "pull", MODEL_NAME);
 
-		// Set up the scanner to read user input
-		Scanner scanner = new Scanner(System.in);
-		String userInput;
+        var model = OllamaStreamingChatModel.builder()
+                .baseUrl(container.getEndpoint())
+                .modelName(MODEL_NAME)
+                .build();
 
-		System.out.print("\nYou: ");
-		// Enter a conversation loop
-		while (true) {
 
-			userInput = scanner.nextLine();
+        System.out.print("\nYou: ");
 
-			// Exit the loop if the user types 'exit'
-			if (userInput.equalsIgnoreCase("exit")) {
-				System.out.println("Ending chat session.");
-				System.exit(0);
-			}
+        // Set up the scanner to read user input
+        var scanner = new Scanner(System.in);
 
-			// Add user message to the conversation
-			conversation.add(UserMessage.from(userInput));
+        var conversation = Collections.synchronizedList(new ArrayList<ChatMessage>());
+        var future = new CompletableFuture<>();
 
-			// Generate AI response
-			model.generate(conversation, new StreamingResponseHandler<>() {
-				@Override
-				public void onNext(String token) {
-					System.out.print(token);
-				}
+        // Enter a conversation loop
+        while (true) {
+            var userInput = scanner.nextLine();
 
-				@Override
-				public void onError(Throwable error) {
-					System.out.println("Error: " + error.getMessage());
-				}
+            // Exit the loop if the user types 'exit'
+            if (userInput.equalsIgnoreCase("exit")) {
+                System.out.println("Ending chat session.");
+                future.complete(null);
+                break;
+            }
 
-				@Override
-				public void onComplete(Response<AiMessage> response) {
-					conversation.add(response.content());
-					System.out.println(); // Print newline after AI's response
-					System.out.print("\nYou: ");
-				}
-			});
-		}
+            // Add user message to the conversation
+            conversation.add(UserMessage.from(userInput));
 
-	}
+            // Generate AI response
+            model.generate(conversation, new StreamingResponseHandler<>() {
+                @Override
+                public void onNext(String token) {
+                    System.out.print(token);
+                }
+
+                @Override
+                public void onError(Throwable error) {
+                    future.completeExceptionally(error);
+                }
+
+                @Override
+                public void onComplete(Response<AiMessage> response) {
+                    conversation.add(response.content());
+                    System.out.println(); // Print newline after AI's response
+                    System.out.print("\nYou: ");
+                }
+            });
+        }
+
+        future.join();
+    }
 
 }

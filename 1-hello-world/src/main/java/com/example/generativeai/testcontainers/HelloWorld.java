@@ -8,21 +8,27 @@ import org.testcontainers.ollama.OllamaContainer;
 @Slf4j
 public class HelloWorld {
 
-	private static final String MODEL_NAME = "llama3.2:1b-instruct-q5_1";
+    private static final String MODEL_NAME = "llama3.2:1b-instruct-q5_1";
 
-	@SneakyThrows
-	public static void main(String[] args) {
-		var container = new OllamaContainer("ollama/ollama:0.5.7").withReuse(true);
+    @SneakyThrows
+    public static void main(String[] args) {
+        var container = new OllamaContainer("ollama/ollama:0.5.7").withReuse(true);
 
-		container.start();
-		container.execInContainer("ollama", "pull", MODEL_NAME);
+        container.start();
+        container.execInContainer("ollama", "pull", MODEL_NAME);
 
-		var model = OllamaChatModel.builder().baseUrl(container.getEndpoint()).modelName(MODEL_NAME).build();
+        var model = OllamaChatModel.builder()
+                .baseUrl(container.getEndpoint())
+                .modelName(MODEL_NAME).build();
 
-		String answer = model
-			.generate("Provide 3 very very short bullet points explaining why Java in 2025 is still awesome");
+//        var model =  OpenAiChatModel.builder()
+//                .apiKey(System.getenv("OPENAI_API_KEY"))
+//                .modelName("gpt-3.5-turbo")
+//                .build();
 
-		log.info("Response from LLM -> {}", answer);
-	}
+        var answer = model.chat("Provide 3 very very short bullet points explaining why Java in 2025 is still awesome");
+
+        log.info("Response from LLM -> {}", answer);
+    }
 
 }
