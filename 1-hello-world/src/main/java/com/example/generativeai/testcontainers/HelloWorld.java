@@ -1,9 +1,13 @@
 package com.example.generativeai.testcontainers;
 
+import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.ollama.OllamaChatModel;
+import dev.langchain4j.model.openai.OpenAiChatModel;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.testcontainers.ollama.OllamaContainer;
+
+// colima start --runtime docker --memory 8 --dns 8.8.8.8
 
 @Slf4j
 public class HelloWorld {
@@ -12,16 +16,19 @@ public class HelloWorld {
 
     @SneakyThrows
     public static void main(String[] args) {
-        var container = new OllamaContainer("ollama/ollama:0.5.7").withReuse(true);
+        var container = new OllamaContainer("ollama/ollama:0.5.7")
+                .withReuse(true);
 
         container.start();
         container.execInContainer("ollama", "pull", MODEL_NAME);
 
-        var model = OllamaChatModel.builder()
+        ChatLanguageModel model;
+
+        model = OllamaChatModel.builder()
                 .baseUrl(container.getEndpoint())
                 .modelName(MODEL_NAME).build();
 
-//        var model =  OpenAiChatModel.builder()
+//        model =  OpenAiChatModel.builder()
 //                .apiKey(System.getenv("OPENAI_API_KEY"))
 //                .modelName("gpt-3.5-turbo")
 //                .build();

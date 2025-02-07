@@ -6,6 +6,7 @@
     </appender>
 
     <logger name="dev.langchain4j" level="DEBUG"/>
+    <logger name="org.testcontainers.dockerclient.DockerClientProviderStrategy" level="ERROR"/>
 
     <root level="info">
         <appender-ref ref="STDOUT" />

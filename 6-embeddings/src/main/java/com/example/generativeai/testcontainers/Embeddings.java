@@ -13,22 +13,31 @@ import java.util.List;
 @Slf4j
 public class Embeddings {
 
+	private static final String MODEL_NAME = "all-minilm:22m";
+
 	public static void main(String[] args) {
-		var ollama = new OllamaContainer(
-				DockerImageName.parse("ilopezluna/all-minilm:0.3.13-22m").asCompatibleSubstituteFor("ollama/ollama"));
-		ollama.start();
+		var container = new OllamaContainer(
+				DockerImageName.parse("ilopezluna/all-minilm:0.3.13-22m")
+						.asCompatibleSubstituteFor("ollama/ollama"))
+				.withReuse(true);
+
+		container.start();
+
+		var endpoint = container.getEndpoint();
 
 		EmbeddingModel model = OllamaEmbeddingModel.builder()
-			.baseUrl(ollama.getEndpoint())
-			.modelName("all-minilm:22m")
+			.baseUrl(endpoint)
+			.modelName(MODEL_NAME)
 			.build();
 
-		Embedding catEmbedding = model.embed("A cat is a small domesticated carnivorous mammal").content();
-		Embedding tigerEmbedding = model.embed("A tiger is a large carnivorous feline mammal").content();
-		Embedding tcEmbedding = model.embed(
+		var catEmbedding = model.embed("A cat is a small domesticated carnivorous mammal").content();
+		var tigerEmbedding = model.embed("A tiger is a large carnivorous feline mammal").content();
+
+		var tcEmbedding = model.embed(
 				"Testcontainers is a Java library that supports JUnit tests, providing lightweight, throwaway instances of common databases, Selenium web browsers, or anything else that can run in a Docker container")
 			.content();
-		Embedding dockerEmbedding = model.embed(
+
+		var dockerEmbedding = model.embed(
 				"Docker is a platform designed to help developers build, share, and run container applications. We handle the tedious setup, so you can focus on the code.")
 			.content();
 

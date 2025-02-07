@@ -5,6 +5,8 @@
         </encoder>
     </appender>
 
+    <logger name="org.testcontainers.dockerclient.DockerClientProviderStrategy" level="ERROR"/>
+
     <root level="info">
         <appender-ref ref="STDOUT" />
     </root>
