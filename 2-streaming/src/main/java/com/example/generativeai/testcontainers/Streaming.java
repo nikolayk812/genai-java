@@ -13,20 +13,26 @@ import java.util.concurrent.CompletableFuture;
 public class Streaming {
 
     private static final String MODEL_NAME = "qwen2:0.5b-instruct-q5_1";
+    // private static final String MODEL_NAME = "llama3.2:1b-instruct-q5_1";
 
     @SneakyThrows
     public static void main(String[] args) {
-        var container = new OllamaContainer("ollama/ollama:0.5.7").withReuse(true);
+        var container = new OllamaContainer("ollama/ollama:0.5.7")
+                .withReuse(true);
 
         container.start();
         container.execInContainer("ollama", "pull", MODEL_NAME);
 
-        var model = OllamaStreamingChatModel.builder().baseUrl(container.getEndpoint()).modelName(MODEL_NAME).build();
+        var model = OllamaStreamingChatModel
+                .builder()
+                .baseUrl(container.getEndpoint())
+                .modelName(MODEL_NAME)
+                .build();
 
         var future = new CompletableFuture<>();
 
         Thread.startVirtualThread(() ->
-                model.chat("Give me a detailed and long explanation of why Testcontainers is great",
+                model.chat("Provide a detailed and long explanation of why Testcontainers is great",
                         new StreamingChatResponseHandler() {
                             @Override
                             public void onPartialResponse(String token) {

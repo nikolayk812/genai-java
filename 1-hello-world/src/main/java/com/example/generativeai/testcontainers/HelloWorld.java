@@ -26,7 +26,7 @@ public class HelloWorld {
 //                .modelName("gpt-3.5-turbo")
 //                .build();
 
-        var answer = model.chat("Provide 3 very very short bullet points explaining why Java in 2025 is still awesome");
+        var answer = model.chat("Provide 3 very short bullet points explaining why Java in 2025 is still awesome");
 
         log.info("Response from LLM -> {}", answer);
     }
