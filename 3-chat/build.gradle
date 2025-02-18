@@ -7,3 +7,9 @@ dependencies {
     implementation 'org.testcontainers:ollama'
     implementation 'dev.langchain4j:langchain4j-ollama'
 }
+
+task runChatApp(type: JavaExec) {
+    mainClass.set('com.example.generativeai.testcontainers.Chat')
+    classpath = sourceSets.main.runtimeClasspath
+    standardInput = System.in
+}

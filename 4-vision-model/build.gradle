@@ -7,3 +7,7 @@ dependencies {
     implementation 'org.testcontainers:ollama'
     implementation 'dev.langchain4j:langchain4j-ollama'
 }
+
+application {
+    mainClass = 'com.example.generativeai.testcontainers.VisionModel'
+}
