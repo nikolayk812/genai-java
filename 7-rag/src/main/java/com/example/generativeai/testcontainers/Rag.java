@@ -11,85 +11,94 @@ import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.pgvector.PgVectorEmbeddingStore;
 import lombok.extern.slf4j.Slf4j;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.ollama.OllamaContainer;
-import org.testcontainers.utility.DockerImageName;
 
 import java.util.List;
 
 @Slf4j
 public class Rag {
 
-	public static void main(String[] args) {
-		EmbeddingModel embeddingModel = buildEmbeddingModel();
-		EmbeddingStore<TextSegment> store = buildEmbeddingStore();
+    public static void main(String[] args) {
+        ChatLanguageModel chatModel = buildChatModel();
 
-		ingestion(embeddingModel, store);
 
-		Embedding queryEmbedding = embeddingModel.embed("What is my favourite sport?").content();
-		List<EmbeddingMatch<TextSegment>> relevant = store
-			.search(EmbeddingSearchRequest.builder().queryEmbedding(queryEmbedding).maxResults(1).build())
-			.matches();
+        // prepare RAG: insert data to pgvector
 
-		if (relevant.isEmpty()) {
-			log.info("No relevant content found.");
-			System.exit(0);
-		}
+        EmbeddingModel embeddingModel = buildEmbeddingModel();
 
-		ChatLanguageModel chatModel = buildChatModel();
+        EmbeddingStore<TextSegment> store = buildEmbeddingStore();
 
-		String response = chatModel.generate("""
-				What is your favourite sport?
+        ingestion(embeddingModel, store);
 
-				Answer the question considering the following relevant content:
-				%s
-				""".formatted(relevant.get(0).embedded().text()));
 
-		log.info("Response from LLM (\uD83E\uDD16)-> {}", response);
-	}
+        // search relevant embeddings in RAG
+        Embedding queryEmbedding = embeddingModel.embed("What is my favourite sport?").content();
 
-	private static void ingestion(EmbeddingModel model, EmbeddingStore<TextSegment> store) {
-		TextSegment segment1 = TextSegment.from("I like football.");
-		Embedding embedding1 = model.embed(segment1).content();
-		store.add(embedding1, segment1);
+        EmbeddingSearchRequest searchRequest = EmbeddingSearchRequest.builder().
+                queryEmbedding(queryEmbedding).maxResults(1).build();
 
-		TextSegment segment2 = TextSegment.from("The weather is good today.");
-		Embedding embedding2 = model.embed(segment2).content();
-		store.add(embedding2, segment2);
-	}
+        List<EmbeddingMatch<TextSegment>> relevant = store.search(searchRequest).matches();
+        if (relevant.isEmpty()) {
+            log.info("No relevant content found.");
+            System.exit(0);
+        }
 
-	private static EmbeddingModel buildEmbeddingModel() {
-		var ollama = new OllamaContainer(
-				DockerImageName.parse("ilopezluna/all-minilm:0.3.13-22m").asCompatibleSubstituteFor("ollama/ollama"));
-		ollama.start();
-		return OllamaEmbeddingModel.builder().baseUrl(ollama.getEndpoint()).modelName("all-minilm:22m").build();
-	}
+        var relevantText = relevant.getFirst().embedded().text();
 
-	private static ChatLanguageModel buildChatModel() {
-		OllamaContainer ollamaContainer = new OllamaContainer(
-				DockerImageName.parse("ilopezluna/llama3.2:0.3.13-1b").asCompatibleSubstituteFor("ollama/ollama"))
-			.withReuse(true);
-		ollamaContainer.start();
-		return OllamaChatModel.builder()
-			.baseUrl(ollamaContainer.getEndpoint())
-			.modelName("llama3.2:1b")
-			.logRequests(true)
-			.build();
-	}
 
-	private static PgVectorEmbeddingStore buildEmbeddingStore() {
-		var pgVector = new PostgreSQLContainer<>(
-				DockerImageName.parse("pgvector/pgvector:pg16").asCompatibleSubstituteFor("postgres"));
-		pgVector.start();
-		return PgVectorEmbeddingStore.builder()
-			.host(pgVector.getHost())
-			.port(pgVector.getFirstMappedPort())
-			.database(pgVector.getDatabaseName())
-			.user(pgVector.getUsername())
-			.password(pgVector.getPassword())
-			.table("test")
-			.dimension(384)
-			.build();
-	}
+        // augment original client request/query
+
+        String response = chatModel.chat("""
+                What is your favourite sport?
+                
+                Answer the question considering the following relevant content, be super confident:
+                %s
+                """.formatted(relevantText));
+
+        log.info("Response from LLM (\uD83E\uDD16)-> {}", response);
+    }
+
+    private static void ingestion(EmbeddingModel model, EmbeddingStore<TextSegment> store) {
+        TextSegment segment1 = TextSegment.from("I like football.");
+        Embedding embedding1 = model.embed(segment1).content();
+        store.add(embedding1, segment1);
+
+        TextSegment segment2 = TextSegment.from("The weather is good today.");
+        Embedding embedding2 = model.embed(segment2).content();
+        store.add(embedding2, segment2);
+    }
+
+    private static EmbeddingModel buildEmbeddingModel() {
+        return OllamaEmbeddingModel.builder()
+                .baseUrl("http://localhost:11434")
+                .modelName("nomic-embed-text:v1.5")
+                .build();
+    }
+
+    private static ChatLanguageModel buildChatModel() {
+        return OllamaChatModel.builder()
+                .baseUrl("http://localhost:11434")
+                .modelName("llama3.2")
+                .build();
+    }
+
+    /*
+    docker run -d --name pgvector-test \
+      -e POSTGRES_USER=test \
+      -e POSTGRES_PASSWORD=test \
+      -e POSTGRES_DB=test \
+      -p 5432:5432 \
+      pgvector/pgvector:pg16
+     */
+    private static PgVectorEmbeddingStore buildEmbeddingStore() {
+        return PgVectorEmbeddingStore.builder()
+                .host("localhost")
+                .port(5432)
+                .database("test")
+                .user("test")
+                .password("test")
+                .table("test")
+                .dimension(768)
+                .build();
+    }
 
 }
